@@ -1,0 +1,29 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "./app/**/*.ts",
+    "./app/**/*.tsx",
+    "./components/**/*.tsx",
+    "./lib/**/*.ts",
+    "./middleware.ts"
+  ],
+  "out": "docs",
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "node_modules/**",
+    ".next/**"
+  ],
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "excludeInternal": true,
+  "readme": "README.md",
+  "name": "Platforms Starter Kit Documentation",
+  "includeVersion": true,
+  "plugin": ["typedoc-material-theme"],
+  "themeColor": "#6366f1",
+  "tsconfig": "./tsconfig.json"
+}
+
