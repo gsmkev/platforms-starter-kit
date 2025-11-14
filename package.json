@@ -5,7 +5,15 @@
     "build": "next build",
     "start": "next start",
     "docs": "typedoc",
-    "docs:watch": "typedoc --watch"
+    "docs:watch": "typedoc --watch",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,json,css,scss,md,mdx}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.13",
@@ -29,6 +37,9 @@
     "@types/node": "^22.15.17",
     "@types/react": "^19.1.4",
     "@types/react-dom": "^19.1.5",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.6",
+    "prettier": "^3.6.2",
     "tailwindcss": "^4.1.6",
     "tw-animate-css": "^1.2.9",
     "typedoc": "^0.28.14",

@@ -1,0 +1,31 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Build outputs
+.next
+out
+build
+dist
+*.tsbuildinfo
+
+# Documentation
+docs
+
+# Logs
+*.log
+
+# Environment
+.env*
+
+# Misc
+.DS_Store
+*.pem
+.vercel
+
+# Package manager
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
