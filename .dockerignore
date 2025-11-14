@@ -1,0 +1,93 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+.yarn
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Testing
+coverage
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+.nyc_output
+
+# Next.js
+.next
+out
+build
+dist
+*.tsbuildinfo
+next-env.d.ts
+
+# Production
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Misc
+.DS_Store
+*.pem
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Environment variables
+.env
+.env*.local
+.env.production
+.env.development
+.env.test
+
+# Vercel
+.vercel
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# CI/CD
+.github
+.gitlab-ci.yml
+.travis.yml
+.circleci
+
+# Documentation
+docs
+README.md
+*.md
+!CHANGELOG.md
+
+# Editor and IDE
+.editorconfig
+.prettierrc*
+.eslintrc*
+.stylelintrc*
+
+# Husky
+.husky
+
+# TypeDoc
+typedoc.json
+
+# Temporary files
+*.tmp
+*.temp
+.cache
+

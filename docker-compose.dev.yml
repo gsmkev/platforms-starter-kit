@@ -1,0 +1,34 @@
+version: "3.8"
+
+# Development-specific Docker Compose configuration
+# Usage: docker-compose -f docker-compose.dev.yml up
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    container_name: platforms-starter-kit-dev
+    ports:
+      - "3000:3000"
+    volumes:
+      # Mount source code for hot reload
+      - .:/app
+      # Prevent overwriting node_modules in container
+      - /app/node_modules
+      # Prevent overwriting .next build cache
+      - /app/.next
+    environment:
+      - NODE_ENV=development
+      - NEXT_TELEMETRY_DISABLED=1
+      - WATCHPACK_POLLING=true
+      - KV_REST_API_URL=${KV_REST_API_URL:-}
+      - KV_REST_API_TOKEN=${KV_REST_API_TOKEN:-}
+    env_file:
+      - .env.local
+    command: pnpm dev
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+

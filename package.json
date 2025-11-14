@@ -8,7 +8,15 @@
     "docs:watch": "typedoc --watch",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "docker:build": "docker build -t platforms-starter-kit .",
+    "docker:dev": "docker-compose -f docker-compose.dev.yml up",
+    "docker:dev:build": "docker-compose -f docker-compose.dev.yml up --build",
+    "docker:prod": "docker-compose --profile prod up -d",
+    "docker:prod:build": "docker-compose --profile prod up --build -d",
+    "docker:down": "docker-compose --profile prod down",
+    "docker:logs": "docker-compose logs -f app",
+    "docker:clean": "docker system prune -a --volumes"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json,css,scss,md,mdx}": [
