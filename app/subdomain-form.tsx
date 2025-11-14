@@ -1,27 +1,27 @@
-'use client';
+"use client";
 
-import type React from 'react';
+import type React from "react";
 
-import { useState } from 'react';
-import { useActionState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { useState } from "react";
+import { useActionState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
-  PopoverTrigger
-} from '@/components/ui/popover';
-import { Smile } from 'lucide-react';
-import { Card } from '@/components/ui/card';
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Smile } from "lucide-react";
+import { Card } from "@/components/ui/card";
 import {
   EmojiPicker,
   EmojiPickerContent,
   EmojiPickerSearch,
-  EmojiPickerFooter
-} from '@/components/ui/emoji-picker';
-import { createSubdomainAction } from '@/app/actions';
-import { rootDomain } from '@/lib/utils';
+  EmojiPickerFooter,
+} from "@/components/ui/emoji-picker";
+import { createSubdomainAction } from "@/app/actions";
+import { rootDomain } from "@/lib/utils";
 
 type CreateState = {
   error?: string;
@@ -56,7 +56,7 @@ function SubdomainInput({ defaultValue }: { defaultValue?: string }) {
 function IconPicker({
   icon,
   setIcon,
-  defaultValue
+  defaultValue,
 }: {
   icon: string;
   setIcon: (icon: string) => void;
@@ -125,7 +125,7 @@ function IconPicker({
 }
 
 export function SubdomainForm() {
-  const [icon, setIcon] = useState('');
+  const [icon, setIcon] = useState("");
 
   const [state, action, isPending] = useActionState<CreateState, FormData>(
     createSubdomainAction,
@@ -143,7 +143,7 @@ export function SubdomainForm() {
       )}
 
       <Button type="submit" className="w-full" disabled={isPending || !icon}>
-        {isPending ? 'Creating...' : 'Create Subdomain'}
+        {isPending ? "Creating..." : "Create Subdomain"}
       </Button>
     </form>
   );

@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useActionState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trash2, Loader2 } from 'lucide-react';
-import Link from 'next/link';
-import { deleteSubdomainAction } from '@/app/actions';
-import { rootDomain, protocol } from '@/lib/utils';
+import { useActionState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Trash2, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { deleteSubdomainAction } from "@/app/actions";
+import { rootDomain, protocol } from "@/lib/utils";
 
 type Tenant = {
   subdomain: string;
@@ -40,7 +40,7 @@ function DashboardHeader() {
 function TenantGrid({
   tenants,
   action,
-  isPending
+  isPending,
 }: {
   tenants: Tenant[];
   action: (formData: FormData) => void;
