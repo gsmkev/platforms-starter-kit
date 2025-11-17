@@ -27,6 +27,10 @@ RUN pnpm install --frozen-lockfile
 # =============================================================================
 FROM base AS builder
 
+# Set database URL
+ARG DATABASE_URL
+ENV DATABASE_URL=${DATABASE_URL}
+
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
 

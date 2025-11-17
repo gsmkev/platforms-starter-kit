@@ -1,69 +1,124 @@
 "use server";
 
-import { redis } from "@/lib/redis";
-import { isValidIcon } from "@/lib/subdomains";
+import { db } from "@/lib/db";
+import { isValidIcon, sanitizeSubdomain } from "@/lib/subdomains";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { rootDomain, protocol } from "@/lib/utils";
 
+const CREATE_ERROR_MESSAGE =
+  "We couldn't create the subdomain right now. Please try again.";
+const DELETE_ERROR_MESSAGE =
+  "We couldn't delete the subdomain right now. Please refresh and retry.";
+
+function getRequiredString(formData: FormData, field: string) {
+  const value = formData.get(field);
+  if (typeof value !== "string" || !value.trim()) {
+    throw new Error(`${field} is required`);
+  }
+  return value.trim();
+}
+
+/**
+ * Handle the admin form submission that creates a new tenant row.
+ */
 export async function createSubdomainAction(
-  prevState: any,
+  prevState: Record<string, unknown>,
   formData: FormData
 ) {
-  const subdomain = formData.get("subdomain") as string;
-  const icon = formData.get("icon") as string;
+  let subdomainInput: string;
+  let iconInput: string;
 
-  if (!subdomain || !icon) {
+  try {
+    subdomainInput = getRequiredString(formData, "subdomain");
+    iconInput = getRequiredString(formData, "icon");
+  } catch {
     return { success: false, error: "Subdomain and icon are required" };
   }
 
-  if (!isValidIcon(icon)) {
+  if (!isValidIcon(iconInput)) {
     return {
-      subdomain,
-      icon,
+      subdomain: subdomainInput,
+      icon: iconInput,
       success: false,
       error: "Please enter a valid emoji (maximum 10 characters)",
     };
   }
 
-  const sanitizedSubdomain = subdomain.toLowerCase().replace(/[^a-z0-9-]/g, "");
+  const sanitizedSubdomain = sanitizeSubdomain(subdomainInput);
 
-  if (sanitizedSubdomain !== subdomain) {
+  if (
+    sanitizedSubdomain.length === 0 ||
+    sanitizedSubdomain !== subdomainInput
+  ) {
     return {
-      subdomain,
-      icon,
+      subdomain: subdomainInput,
+      icon: iconInput,
       success: false,
       error:
-        "Subdomain can only have lowercase letters, numbers, and hyphens. Please try again.",
+        "Subdomain can only contain lowercase letters, numbers, and hyphens.",
     };
   }
 
-  const subdomainAlreadyExists = await redis.get(
-    `subdomain:${sanitizedSubdomain}`
-  );
-  if (subdomainAlreadyExists) {
+  try {
+    const subdomainAlreadyExists = await db.tenant.findUnique({
+      where: { subdomain: sanitizedSubdomain },
+    });
+
+    if (subdomainAlreadyExists) {
+      return {
+        subdomain: subdomainInput,
+        icon: iconInput,
+        success: false,
+        error: "This subdomain is already taken",
+      };
+    }
+
+    await db.tenant.create({
+      data: {
+        subdomain: sanitizedSubdomain,
+        emoji: iconInput,
+      },
+    });
+  } catch (error) {
+    console.error("Failed to create subdomain", error);
     return {
-      subdomain,
-      icon,
+      subdomain: subdomainInput,
+      icon: iconInput,
       success: false,
-      error: "This subdomain is already taken",
+      error: CREATE_ERROR_MESSAGE,
     };
   }
-
-  await redis.set(`subdomain:${sanitizedSubdomain}`, {
-    emoji: icon,
-    createdAt: Date.now(),
-  });
 
   redirect(`${protocol}://${sanitizedSubdomain}.${rootDomain}`);
 }
 
+/**
+ * Server action that deletes a tenant row and revalidates the admin UI.
+ */
 export async function deleteSubdomainAction(
-  prevState: any,
+  prevState: Record<string, unknown>,
   formData: FormData
 ) {
-  const subdomain = formData.get("subdomain");
-  await redis.del(`subdomain:${subdomain}`);
+  const input = formData.get("subdomain");
+  if (typeof input !== "string" || !input.trim()) {
+    return { error: "A subdomain is required" };
+  }
+
+  const sanitizedSubdomain = sanitizeSubdomain(input);
+  if (!sanitizedSubdomain) {
+    return { error: "Invalid subdomain" };
+  }
+
+  try {
+    await db.tenant.delete({
+      where: { subdomain: sanitizedSubdomain },
+    });
+  } catch (error) {
+    console.error("Failed to delete subdomain", error);
+    return { error: DELETE_ERROR_MESSAGE };
+  }
+
   revalidatePath("/admin");
   return { success: "Domain deleted successfully" };
 }

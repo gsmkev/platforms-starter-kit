@@ -1,5 +1,25 @@
-import { redis } from "@/lib/redis";
+import type { Tenant } from "@prisma/client";
+import { db } from "@/lib/db";
 
+export type TenantSummary = {
+  subdomain: string;
+  emoji: string;
+  createdAt: number;
+};
+
+/**
+ * Normalize a user supplied subdomain to the characters we allow in DNS labels.
+ */
+export function sanitizeSubdomain(value: string) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9-]/g, "");
+}
+
+/**
+ * Defensive validator to limit emoji payloads sent to the database.
+ */
 export function isValidIcon(str: string) {
   if (str.length > 10) {
     return false;
@@ -26,36 +46,33 @@ export function isValidIcon(str: string) {
   return str.length >= 1 && str.length <= 10;
 }
 
-type SubdomainData = {
-  emoji: string;
-  createdAt: number;
-};
+function mapTenantToSummary(tenant: Tenant): TenantSummary {
+  return {
+    subdomain: tenant.subdomain,
+    emoji: tenant.emoji,
+    createdAt: tenant.createdAt.getTime(),
+  };
+}
 
-export async function getSubdomainData(subdomain: string) {
-  const sanitizedSubdomain = subdomain.toLowerCase().replace(/[^a-z0-9-]/g, "");
-  const data = await redis.get<SubdomainData>(
-    `subdomain:${sanitizedSubdomain}`
-  );
-  return data;
+export async function getSubdomainData(
+  subdomain: string
+): Promise<TenantSummary | null> {
+  const sanitizedSubdomain = sanitizeSubdomain(subdomain);
+  const tenant = await db.tenant.findUnique({
+    where: { subdomain: sanitizedSubdomain },
+  });
+
+  if (!tenant) {
+    return null;
+  }
+
+  return mapTenantToSummary(tenant);
 }
 
 export async function getAllSubdomains() {
-  const keys = await redis.keys("subdomain:*");
-
-  if (!keys.length) {
-    return [];
-  }
-
-  const values = await redis.mget<SubdomainData[]>(...keys);
-
-  return keys.map((key, index) => {
-    const subdomain = key.replace("subdomain:", "");
-    const data = values[index];
-
-    return {
-      subdomain,
-      emoji: data?.emoji || "❓",
-      createdAt: data?.createdAt || Date.now(),
-    };
+  const tenants = await db.tenant.findMany({
+    orderBy: { createdAt: "desc" },
   });
+
+  return tenants.map(mapTenantToSummary);
 }

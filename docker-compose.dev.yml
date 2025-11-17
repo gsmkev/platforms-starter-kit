@@ -1,15 +1,41 @@
-version: "3.8"
-
 # Development-specific Docker Compose configuration
 # Usage: docker-compose -f docker-compose.dev.yml up
 
 services:
+  db:
+    image: postgres:16
+    container_name: platforms-starter-kit-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-platforms}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - dev-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-platforms}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
   app:
     build:
       context: .
       dockerfile: Dockerfile
       target: builder
+      args:
+        DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-platforms}?schema=public}
     container_name: platforms-starter-kit-dev
+    depends_on:
+      db:
+        condition: service_healthy
     ports:
       - "3000:3000"
     volumes:
@@ -20,15 +46,16 @@ services:
       # Prevent overwriting .next build cache
       - /app/.next
     environment:
-      - NODE_ENV=development
-      - NEXT_TELEMETRY_DISABLED=1
-      - WATCHPACK_POLLING=true
-      - KV_REST_API_URL=${KV_REST_API_URL:-}
-      - KV_REST_API_TOKEN=${KV_REST_API_TOKEN:-}
+      NODE_ENV: development
+      NEXT_TELEMETRY_DISABLED: "1"
+      WATCHPACK_POLLING: "true"
+      DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-platforms}?schema=public}
     env_file:
-      - .env.local
+      - .env.docker
     command: pnpm dev
     restart: unless-stopped
     stdin_open: true
     tty: true
 
+volumes:
+  dev-postgres-data:

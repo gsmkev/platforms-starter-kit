@@ -8,6 +8,11 @@ export const metadata: Metadata = {
   description: `Manage subdomains for ${rootDomain}`,
 };
 
+/**
+ * The admin dashboard queries live tenant data, so disable static rendering.
+ */
+export const dynamic = "force-dynamic";
+
 export default async function AdminPage() {
   // TODO: You can add authentication here with your preferred auth provider
   const tenants = await getAllSubdomains();

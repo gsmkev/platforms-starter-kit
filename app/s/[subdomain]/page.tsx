@@ -4,6 +4,11 @@ import { notFound } from "next/navigation";
 import { getSubdomainData } from "@/lib/subdomains";
 import { protocol, rootDomain } from "@/lib/utils";
 
+/**
+ * Each tenant page is data-driven, so always render on the server.
+ */
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata({
   params,
 }: {
