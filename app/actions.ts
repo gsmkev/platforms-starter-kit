@@ -1,15 +1,19 @@
 "use server";
 
+import { auth } from "@/auth";
+import { db } from "@/lib/db/client";
 import { tenantRepository } from "@/lib/db/tenant-repository";
 import { isValidIcon, sanitizeSubdomain } from "@/lib/domain/subdomains";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { rootDomain, protocol } from "@/lib/config/site";
+import { isGlobalAdmin } from "@/lib/auth/permissions";
 
 const CREATE_ERROR_MESSAGE =
   "We couldn't create the subdomain right now. Please try again.";
 const DELETE_ERROR_MESSAGE =
   "We couldn't delete the subdomain right now. Please refresh and retry.";
+const UNAUTHORIZED_ERROR_MESSAGE = "You are not authorized to manage tenants.";
 
 function getRequiredString(formData: FormData, field: string) {
   const value = formData.get(field);
@@ -26,6 +30,12 @@ export async function createSubdomainAction(
   prevState: Record<string, unknown>,
   formData: FormData
 ) {
+  const session = await auth();
+
+  if (!session?.user || !isGlobalAdmin(session.user.role)) {
+    return { success: false, error: UNAUTHORIZED_ERROR_MESSAGE };
+  }
+
   let subdomainInput: string;
   let iconInput: string;
 
@@ -74,10 +84,18 @@ export async function createSubdomainAction(
       };
     }
 
-    await tenantRepository.create({
+    const tenant = await tenantRepository.create({
       data: {
         subdomain: sanitizedSubdomain,
         emoji: iconInput,
+      },
+    });
+
+    await db.tenantMembership.create({
+      data: {
+        tenantId: tenant.id,
+        userId: session.user.id,
+        role: "OWNER",
       },
     });
   } catch (error) {
@@ -100,6 +118,12 @@ export async function deleteSubdomainAction(
   prevState: Record<string, unknown>,
   formData: FormData
 ) {
+  const session = await auth();
+
+  if (!session?.user || !isGlobalAdmin(session.user.role)) {
+    return { error: UNAUTHORIZED_ERROR_MESSAGE };
+  }
+
   const input = formData.get("subdomain");
   if (typeof input !== "string" || !input.trim()) {
     return { error: "A subdomain is required" };

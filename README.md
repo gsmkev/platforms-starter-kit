@@ -10,6 +10,7 @@ A production-ready example of a multi-tenant application built with Next.js 15, 
 - ✅ PostgreSQL for tenant data storage
 - ✅ Admin interface for managing tenants
 - ✅ Emoji support for tenant branding
+- ✅ NextAuth-powered authentication with role-based middleware
 - ✅ Support for local development with subdomains
 - ✅ Compatible with Vercel preview deployments
 
@@ -49,6 +50,8 @@ A production-ready example of a multi-tenant application built with Next.js 15, 
 
      ```
      DATABASE_URL="postgresql://postgres:postgres@localhost:5432/platforms?schema=public"
+     AUTH_SECRET="generate-a-long-random-string"
+     AUTH_URL="http://localhost:3000"
      ```
 
    - Review `.env.docker` (already checked into the repo) for the values containers will use. Adjust the credentials there if you need something other than the default `postgres/postgres`.
@@ -87,6 +90,16 @@ This application demonstrates a subdomain-based multi-tenant architecture where:
 - Subdomains are dynamically mapped to tenant-specific content
 
 The middleware (`middleware.ts`) intelligently detects subdomains across various environments (local development, production, and Vercel preview deployments).
+
+## Authentication
+
+This starter kit ships with [NextAuth v5](https://authjs.dev/) configured with the Prisma adapter. Key pieces include:
+
+- Credential-based sign-in backed by hashed passwords in the `User` table
+- Role-aware middleware that shields `/dashboard` for authenticated users and `/admin` for global admins
+- Tenant membership metadata stored per user to ensure subdomain access can be scoped
+
+Provide `AUTH_SECRET` (and, when applicable, `AUTH_URL`) in every environment. Visit `/login` to authenticate and `/dashboard` to view your memberships.
 
 ## Deployment
 

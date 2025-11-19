@@ -1,7 +1,10 @@
+import { auth } from "@/auth";
 import { getAllSubdomains } from "@/lib/domain/subdomains";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { AdminDashboard } from "./dashboard";
 import { rootDomain } from "@/lib/config/site";
+import { isGlobalAdmin } from "@/lib/auth/permissions";
 
 export const metadata: Metadata = {
   title: `Admin Dashboard | ${rootDomain}`,
@@ -14,7 +17,16 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
-  // TODO: You can add authentication here with your preferred auth provider
+  const session = await auth();
+
+  if (!session?.user) {
+    redirect("/login?callbackUrl=/admin");
+  }
+
+  if (!isGlobalAdmin(session.user.role)) {
+    redirect("/dashboard");
+  }
+
   const tenants = await getAllSubdomains();
 
   return (

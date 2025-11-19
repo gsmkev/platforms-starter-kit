@@ -1,17 +1,34 @@
 import Link from "next/link";
-import { SubdomainForm } from "./subdomain-form";
+
+import { auth } from "@/auth";
+import { isGlobalAdmin } from "@/lib/auth/permissions";
 import { rootDomain } from "@/lib/config/site";
 
+import { SubdomainForm } from "./subdomain-form";
+
 export default async function HomePage() {
+  const session = await auth();
+  const user = session?.user;
+  const canManageTenants = isGlobalAdmin(user?.role ?? null);
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-white p-4 relative">
       <div className="absolute top-4 right-4">
-        <Link
-          href="/admin"
-          className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
-        >
-          Admin
-        </Link>
+        {user ? (
+          <Link
+            href="/dashboard"
+            className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            Dashboard
+          </Link>
+        ) : (
+          <Link
+            href="/login"
+            className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            Login
+          </Link>
+        )}
       </div>
 
       <div className="w-full max-w-md space-y-8">
@@ -24,8 +41,20 @@ export default async function HomePage() {
           </p>
         </div>
 
-        <div className="mt-8 bg-white shadow-md rounded-lg p-6">
-          <SubdomainForm />
+        <div className="mt-8 bg-white shadow-md rounded-lg p-6 min-h-[220px] flex items-center justify-center">
+          {canManageTenants ? (
+            <SubdomainForm />
+          ) : (
+            <div className="space-y-4 text-center text-gray-600">
+              <p>You need an admin account to create new tenant subdomains.</p>
+              <Link
+                href="/login"
+                className="text-sm text-blue-600 hover:underline font-medium"
+              >
+                Sign in to continue
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </div>

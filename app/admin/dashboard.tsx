@@ -20,8 +20,6 @@ type DeleteState = {
 };
 
 function DashboardHeader() {
-  // TODO: You can add authentication here with your preferred auth provider
-
   return (
     <div className="flex justify-between items-center mb-8">
       <h1 className="text-3xl font-bold">Subdomain Management</h1>
