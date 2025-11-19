@@ -21,7 +21,7 @@ import {
   EmojiPickerFooter,
 } from "@/components/ui/emoji-picker";
 import { createSubdomainAction } from "@/app/actions";
-import { rootDomain } from "@/lib/utils";
+import { rootDomain } from "@/lib/config/site";
 
 type CreateState = {
   error?: string;

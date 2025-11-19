@@ -1,10 +1,10 @@
 "use server";
 
-import { tenantRepository } from "@/lib/repositories";
-import { isValidIcon, sanitizeSubdomain } from "@/lib/subdomains";
+import { tenantRepository } from "@/lib/db/tenant-repository";
+import { isValidIcon, sanitizeSubdomain } from "@/lib/domain/subdomains";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { rootDomain, protocol } from "@/lib/utils";
+import { rootDomain, protocol } from "@/lib/config/site";
 
 const CREATE_ERROR_MESSAGE =
   "We couldn't create the subdomain right now. Please try again.";

@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { rootDomain } from "@/lib/utils";
+import { rootDomain } from "@/lib/config/site";
 
 function extractSubdomain(request: NextRequest): string | null {
   const url = request.url;

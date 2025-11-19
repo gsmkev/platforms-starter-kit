@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { rootDomain, protocol } from "@/lib/utils";
+import { rootDomain, protocol } from "@/lib/config/site";
 
 export default function NotFound() {
   const [subdomain, setSubdomain] = useState<string | null>(null);

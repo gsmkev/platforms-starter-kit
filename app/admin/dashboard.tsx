@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trash2, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { deleteSubdomainAction } from "@/app/actions";
-import { rootDomain, protocol } from "@/lib/utils";
+import { rootDomain, protocol } from "@/lib/config/site";
 
 type Tenant = {
   subdomain: string;

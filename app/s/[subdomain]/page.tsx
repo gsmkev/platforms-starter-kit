@@ -1,8 +1,8 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getSubdomainData } from "@/lib/subdomains";
-import { protocol, rootDomain } from "@/lib/utils";
+import { getSubdomainData } from "@/lib/domain/subdomains";
+import { protocol, rootDomain } from "@/lib/config/site";
 
 /**
  * Each tenant page is data-driven, so always render on the server.
