@@ -1,6 +1,6 @@
 "use server";
 
-import { db } from "@/lib/db";
+import { tenantRepository } from "@/lib/repositories";
 import { isValidIcon, sanitizeSubdomain } from "@/lib/subdomains";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -61,7 +61,7 @@ export async function createSubdomainAction(
   }
 
   try {
-    const subdomainAlreadyExists = await db.tenant.findUnique({
+    const subdomainAlreadyExists = await tenantRepository.findUnique({
       where: { subdomain: sanitizedSubdomain },
     });
 
@@ -74,7 +74,7 @@ export async function createSubdomainAction(
       };
     }
 
-    await db.tenant.create({
+    await tenantRepository.create({
       data: {
         subdomain: sanitizedSubdomain,
         emoji: iconInput,
@@ -111,7 +111,7 @@ export async function deleteSubdomainAction(
   }
 
   try {
-    await db.tenant.delete({
+    await tenantRepository.delete({
       where: { subdomain: sanitizedSubdomain },
     });
   } catch (error) {

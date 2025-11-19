@@ -1,5 +1,5 @@
 import type { Tenant } from "@prisma/client";
-import { db } from "@/lib/db";
+import { tenantRepository } from "@/lib/repositories";
 
 export type TenantSummary = {
   subdomain: string;
@@ -58,7 +58,7 @@ export async function getSubdomainData(
   subdomain: string
 ): Promise<TenantSummary | null> {
   const sanitizedSubdomain = sanitizeSubdomain(subdomain);
-  const tenant = await db.tenant.findUnique({
+  const tenant = await tenantRepository.findUnique({
     where: { subdomain: sanitizedSubdomain },
   });
 
@@ -70,7 +70,7 @@ export async function getSubdomainData(
 }
 
 export async function getAllSubdomains() {
-  const tenants = await db.tenant.findMany({
+  const tenants = await tenantRepository.findMany({
     orderBy: { createdAt: "desc" },
   });
 
